@@ -76,32 +76,6 @@ function calculateQuote(input){
     let yearlyPreDiscount = monthlyTotal * 12;
     let yearlyPostDiscount = (yearlyPreDiscount) * (1 - (yearlyDiscountPercentage * 0.01));
 
-
-    //calc hospital WITH loading
-
-    //calc Extras
-
-    //add upgrade/family fee
-
-    //calc monthly
-
-    //calc yearly before disc
-
-    //calc yearly after disc
-
     return { hospitalCoverTotal, extrasCoverTotal, upgradeFee, monthlyTotal, yearlyPreDiscount, yearlyPostDiscount};
 }
-
-const testInput = {
-  hospitalCoverLevel: "silver",
-  extrasCoverLevel: "standard",
-  adults: [
-    {age: 40, LHC: "no"},
-    {age: 35, LHC: "yes"}
-],
-  coverType: "Family"
-};
-
-//test run with test data
-console.log(calculateQuote(testInput));
 
