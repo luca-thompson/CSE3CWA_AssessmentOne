@@ -42,6 +42,7 @@ function calculateQuote(input){
     let extrasCoverTotal = 0;
     let LHCPercentage = 0;
 
+
     for (let i = 0; i < input.adults.length; i++) {
         
 
@@ -56,18 +57,18 @@ function calculateQuote(input){
 
             accuracyErrorFlag = 1
 
-            hospitalCoverTotal += coverPrices.get(input.hospitalCoverLevel);
+            hospitalCoverTotal += coverPrices.get(input.hospitalCoverLevel.toLowerCase());
         }
         else{
-            hospitalCoverTotal += coverPrices.get(input.hospitalCoverLevel) * (1 + LHCPercentage);
+            hospitalCoverTotal += coverPrices.get(input.hospitalCoverLevel.toLowerCase()) * (1 + (LHCPercentage * 0.01));
         }
 
-        extrasCoverTotal += extrasPrices.get(input.extrasCoverLevel)
+        extrasCoverTotal += extrasPrices.get(input.extrasCoverLevel.toLowerCase())
     }
 
     let upgradeFee = 0;
 
-    if (input.coverType == "Family"){
+    if (input.coverType.toLowerCase() == "family"){
         upgradeFee = familyUpgradeFee;
     }
 
@@ -92,16 +93,15 @@ function calculateQuote(input){
 }
 
 const testInput = {
-  hospitalCoverLevel: "basic",
-  extrasCoverLevel: "basic",
+  hospitalCoverLevel: "silver",
+  extrasCoverLevel: "standard",
   adults: [
     {age: 40, LHC: "no"},
-    {age: 20, LHC: "yes"}
+    {age: 35, LHC: "yes"}
 ],
-  coverType: "Single"
+  coverType: "Family"
 };
 
-
-
+//test run with test data
 console.log(calculateQuote(testInput));
 
