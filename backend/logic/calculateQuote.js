@@ -9,9 +9,9 @@ coverPrices.set("gold", 220);
 
 const extrasPrices = new Map();
 extrasPrices.set("none", 0);
-coverPrices.set("basic", 25);
-coverPrices.set("standard", 45);
-coverPrices.set("premium", 70);
+extrasPrices.set("basic", 25);
+extrasPrices.set("standard", 45);
+extrasPrices.set("premium", 70);
 
 let yearlyDiscountPercentage = 8;
 let familyUpgradeFee = 30;
@@ -30,7 +30,7 @@ function calculateLHCPercentage(adult){
         return 0;
     }
 
-    return (adult.age-30 * 2);
+    return ((adult.age - 30) * 2);
 
 }
 
@@ -43,6 +43,7 @@ function calculateQuote(input){
     let LHCPercentage = 0;
 
     for (let i = 0; i < input.adults.length; i++) {
+        
 
         if (input.adults[i].age == null){
             console.log("null adult")
@@ -50,8 +51,6 @@ function calculateQuote(input){
         }
 
         LHCPercentage = calculateLHCPercentage(input.adults[i])
-        console.log("LHCP: ")
-        console.log(calculateLHCPercentage(input.adults[i]))
 
         if (LHCPercentage == null){
 
@@ -74,7 +73,7 @@ function calculateQuote(input){
 
     let monthlyTotal = hospitalCoverTotal + extrasCoverTotal + upgradeFee;
     let yearlyPreDiscount = monthlyTotal * 12;
-    let yearlyPostDiscount = yearlyPreDiscount * (1 - yearlyDiscountPercentage);
+    let yearlyPostDiscount = (yearlyPreDiscount) * (1 - (yearlyDiscountPercentage * 0.01));
 
 
     //calc hospital WITH loading
