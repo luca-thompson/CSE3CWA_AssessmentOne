@@ -1,6 +1,6 @@
 const express = require('express');
 
-const quotesRouter = require('./routes/quotes');
+const quotesRouter = require('./routes/quotes.js');
 
 const app = express();
 

@@ -17,7 +17,7 @@ router.get('/', (req, res) => {
 router.get('/:id', (req, res) => {
     const quote = db.prepare('SELECT * FROM quotes WHERE id = ?').get(req.params.id);
     if (!quote) {
-        return res.status(404).send('Quote not found');
+        return res.status(404).send('Quote not found\n');
     }
     res.send(quote);
 });
