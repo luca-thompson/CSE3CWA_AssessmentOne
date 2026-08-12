@@ -26,7 +26,7 @@ npm run start
 
 ### Quote Calculation
 
-Each quote is built from two separate covers — hospital and extras — which are priced independently and then added together.
+Quotes are the sum of hospital and extras cover
 
 **Hospital premium (per adult)**
 Each adult's hospital tier price is multiplied by `(1 + their LHC loading)`.
@@ -36,13 +36,12 @@ Each adult's hospital tier price is multiplied by `(1 + their LHC loading)`.
     - age > 30
 - If cover history is "Yes" or "Not sure", loading is 0% (with "Not sure" triggering a warning that the quote may be inaccurate).
 - If age ≤ 30, loading is 0% regardless of history.
-- LHC loading is never applied to extras cover.
 
 **Hospital total** = sum of each adult's loaded hospital premium (1 adult for Single, 2 for Couple/Family).
 
 **Extras total** = extras tier price × number of adults. Extras are never loaded.
 
-**Family upgrade fee** = $30/month if cover type is Family, otherwise $0. This is a flat fee automatically added — dependent children are not priced individually.
+**Family upgrade fee** = $30/month if cover type is Family, otherwise $0. This is a flat fee automatically added, dependent children are not priced
 
 **Monthly premium** = hospital total + extras total + family fee.
 
