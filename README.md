@@ -24,6 +24,10 @@ npm run dev
 cd backend
 npm run start
 
+### DatabaseSetup
+
+The database is initialized and held in memory as a module by the orchestration "server.js" backend file. It initializes the sqlite database and maintains the connection while running. The file that does this is "db.js" and has its exported module as "db".
+
 ### Quote Calculation
 
 Quotes are the sum of hospital and extras cover
