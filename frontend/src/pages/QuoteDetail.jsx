@@ -1,13 +1,14 @@
 import { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useLocation } from 'react-router-dom';
 
 function QuoteDetail() {
   const [quote, setQuote] = useState({});
   const [calculation, setCalculation] = useState({});
   const { id } = useParams();
+  const location = useLocation();
 
   useEffect(() => {
-    fetch(`/quotes/${id}`)
+    fetch(`/api/quotes/${id}`)
       .then(res => res.json())
       .then(data => {
         setQuote(data.quote);
@@ -21,6 +22,8 @@ function QuoteDetail() {
   return (
     <div>
       <h2>{quote.customer_name}</h2>
+
+      {location.state?.saved && <p>Quote saved successfully.</p>}
 
       <p>Cover Type: {quote.cover_type}</p>
       <p>Hospital Cover: {quote.hospital_cover}</p>

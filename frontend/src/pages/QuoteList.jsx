@@ -5,18 +5,21 @@ function QuoteList() {
   const [quotes, setQuotes] = useState([]);
 
   useEffect(() => {
-    fetch('/quotes')
+    fetch('/api/quotes')
       .then(res => res.json())
       .then(data => {
         setQuotes(data);
       })
       .catch(err => {
-        console.error('Failed to fetch quotes:', err);
+        console.error('failed to fetch quotes:', err);
       });
   }, []);
 
   return (
     <div>
+      <div>
+        <Link to={`/quotes/new`}>Create New Quote</Link>
+      </div>
       <table>
         <thead>
           <tr>
@@ -38,6 +41,7 @@ function QuoteList() {
                 <td>{q.payment_frequency}</td>
                 <td>{q.created_at}</td>
                 <td><Link to={`/quotes/${q.id}`}>View</Link></td>
+                <td><Link to={`/quotes/${q.id}/edit`}>Edit</Link></td>
             </tr>
           ))}
         </tbody>

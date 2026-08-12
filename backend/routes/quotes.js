@@ -11,13 +11,9 @@ const db = require("../db.js");
 //get all
 router.get('/', (req, res) => {
 
-    const quotes = db.prepare("SELECT * FROM quotes;").all()
+  const quotes = db.prepare("SELECT * FROM quotes;").all()
 
-    if (!quotes){
-      return res.status(404).send('couldnt fetch quotes\n');
-    }
-
-    res.status(200).send(quotes);
+  res.status(200).send(quotes);
 
 });
 

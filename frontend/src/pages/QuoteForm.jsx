@@ -1,29 +1,28 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 
-const emptyQuote = {
-  customer_name: '',
-  cover_type: 'Single',
-  applicant1_age: '',
-  applicant1_cover_history: 'Yes',
-  applicant2_age: '',
-  applicant2_cover_history: 'Yes',
-  hospital_cover: 'None',
-  extras_cover: 'None',
-  payment_frequency: 'Monthly',
-  annual_discount: 0,
-  notes: '',
-};
-
 function QuoteForm() {
-  const [quote, setQuote] = useState(emptyQuote);
+
+  const [quote, setQuote] = useState({
+    customer_name: '',
+    cover_type: 'Single',
+    applicant1_age: '',
+    applicant1_cover_history: 'Yes',
+    applicant2_age: '',
+    applicant2_cover_history: 'Yes',
+    hospital_cover: 'None',
+    extras_cover: 'None',
+    payment_frequency: 'Monthly',
+    annual_discount: 0,
+    notes: '',
+  });
+
   const [error, setError] = useState('');
   const { id } = useParams();
   const navigate = useNavigate();
-  const isEditing = Boolean(id);
 
   useEffect(() => {
-    if (!isEditing) return;
+    if (!id) return;
 
     fetch(`/api/quotes/${id}`)
       .then(res => res.json())
@@ -31,21 +30,20 @@ function QuoteForm() {
         setQuote(data.quote);
       })
       .catch(err => {
-        console.error('Failed to fetch quote:', err);
+        console.error('quote fetch error: ', err);
       });
   }, [id]);
 
   function handleChange(e) {
-    const { name, value } = e.target;
-    setQuote({ ...quote, [name]: value });
+    setQuote({ ...quote, [e.target.name]: e.target.value });
   }
 
   function handleSubmit(e) {
     e.preventDefault();
     setError('');
 
-    if (!quote.customer_name || !quote.cover_type || !quote.hospital_cover || !quote.extras_cover || !quote.payment_frequency) {
-      setError('Please fill in all required fields.');
+    if (!quote.customer_name) {
+      setError('Customer name is required.');
       return;
     }
 
@@ -54,15 +52,9 @@ function QuoteForm() {
       return;
     }
 
-    if (quote.cover_type !== 'Single') {
-      if (!quote.applicant2_age || !quote.applicant2_cover_history) {
-        setError('Applicant 2 age and cover history are required.');
-        return;
-      }
-      if (quote.applicant2_age < 18 || quote.applicant2_age > 100) {
-        setError('Applicant 2 age must be between 18 and 100.');
-        return;
-      }
+    if (quote.cover_type !== 'Single' && (!quote.applicant2_age || !quote.applicant2_cover_history)) {
+      setError('Applicant 2 age and cover history are required.');
+      return;
     }
 
     if (quote.annual_discount < 0 || quote.annual_discount > 10) {
@@ -70,32 +62,29 @@ function QuoteForm() {
       return;
     }
 
-    const url = isEditing ? `/api/quotes/${id}` : '/api/quotes';
-    const method = isEditing ? 'PUT' : 'POST';
+    const url = id ? `/api/quotes/${id}` : '/api/quotes';
+    const method = id ? 'PUT' : 'POST';
 
     fetch(url, {
       method,
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(quote),
     })
-      .then(res => {
-        if (!res.ok) throw new Error('Save failed');
-        return res.json();
-      })
+      .then(res => res.json())
       .then(data => {
-        navigate(`/quotes/${isEditing ? id : data.id}`);
+        const target = `/quotes/${id || data.id}`;
+        console.log('navigating to:', target);
+        navigate(target, { state: { saved: true } });
       })
       .catch(err => {
-        console.error('Failed to save quote:', err);
+        console.error('quote save error: ', err);
         setError('Failed to save quote.');
       });
   }
 
-  const isMultiAdult = quote.cover_type !== 'Single';
-
   return (
     <div>
-      <h2>{isEditing ? 'Edit Quote' : 'New Quote'}</h2>
+      <h2>{id ? 'Edit Quote' : 'New Quote'}</h2>
 
       {error && <p>{error}</p>}
 
@@ -128,7 +117,7 @@ function QuoteForm() {
           </select>
         </div>
 
-        {isMultiAdult && (
+        {quote.cover_type !== 'Single' && (
           <>
             <div>
               <label>Applicant 2 Age</label>
@@ -187,7 +176,7 @@ function QuoteForm() {
           <textarea name="notes" value={quote.notes} onChange={handleChange} />
         </div>
 
-        <button type="submit">{isEditing ? 'Update Quote' : 'Create Quote'}</button>
+        <button type="submit">{id ? 'Update Quote' : 'Create Quote'}</button>
       </form>
     </div>
   );
