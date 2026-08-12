@@ -1,11 +1,13 @@
+//packages
 const express = require('express');
 const router = express.Router();
 
+//custom/my packages
+const { calculateQuote } = require('../logic/calculateQuote');
 const db = require("../db.js");
 
 
 //get all
-
 router.get('/', (req, res) => {
     const sqlStatement = "SELECT * FROM quotes;"
 
@@ -16,13 +18,14 @@ router.get('/', (req, res) => {
 
 //get single quote by id
 router.get('/:id', (req, res) => {
-
     const quote = db.prepare('SELECT * FROM quotes WHERE id = ?').get(req.params.id);
     if (!quote) {
-        return res.status(404).send('Quote not found\n');return
+        return res.status(404).send('Quote not found\n');
     }
 
-    res.status(200).send(quote);
+    const calculation = calculateQuote(quote);
+
+    res.status(200).json({ quote, calculation });
 });
 
 //post new quote to db

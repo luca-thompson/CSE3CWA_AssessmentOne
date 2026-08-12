@@ -13,69 +13,91 @@ extrasPrices.set("basic", 25);
 extrasPrices.set("standard", 45);
 extrasPrices.set("premium", 70);
 
-let yearlyDiscountPercentage = 8;
 let familyUpgradeFee = 30;
 
+const lhcStatement = "Lifetime Health Cover loading applies only to hospital cover. It does not apply to extras cover.";
 
-function calculateLHCPercentage(adult){
-    if (adult.LHC == "yes"){
+function calculateLHCPercentage(age, coverHistory) {
+    if (coverHistory == "yes") {
         return 0;
     }
 
-    if (adult.LHC == "unsure"){
+    if (coverHistory == "unsure") {
         return null;
     }
 
-    if (adult.age <= 30){
+    if (age <= 30) {
         return 0;
     }
 
-    return ((adult.age - 30) * 2);
-
+    return ((age - 30) * 2);
 }
 
-function calculateQuote(input){
+function calculateQuote(row) {
 
-    let accuracyErrorFlag = 0
-    
+    const adults = [
+        { age: row.applicant1_age, coverHistory: row.applicant1_cover_history?.toLowerCase() },
+    ];
+
+    if (row.cover_type.toLowerCase() == "couple" || row.cover_type.toLowerCase() == "family") {
+        adults.push({ age: row.applicant2_age, coverHistory: row.applicant2_cover_history?.toLowerCase() });
+    }
+
     let hospitalCoverTotal = 0;
     let extrasCoverTotal = 0;
-    let LHCPercentage = 0;
+    let warnings = [];
+    let applicantResults = [];
 
+    for (let i = 0; i < adults.length; i++) {
 
-    for (let i = 0; i < input.adults.length; i++) {
-        
+        const LHCPercentage = calculateLHCPercentage(adults[i].age, adults[i].coverHistory);
+        let appliedPercentage = 0;
 
-        if (input.adults[i].age == null){
-            console.log("null adult")
-            continue;
+        if (LHCPercentage == null) {
+            // not sure so add warning
+            appliedPercentage = 0;
+            hospitalCoverTotal += coverPrices.get(row.hospital_cover.toLowerCase());
+            warnings.push(`Applicant ${i + 1}: Cover history is unknown, LHC loading has not been applied. This quote may be inaccurate.`);
+        } else {
+            appliedPercentage = LHCPercentage;
+            hospitalCoverTotal += coverPrices.get(row.hospital_cover.toLowerCase()) * (1 + (LHCPercentage * 0.01));
         }
 
-        LHCPercentage = calculateLHCPercentage(input.adults[i])
+        applicantResults.push({
+            number: i + 1,
+            age: adults[i].age,
+            coverHistory: adults[i].coverHistory,
+            lhcLoadingPercent: appliedPercentage,
+        });
 
-        if (LHCPercentage == null){
-
-            accuracyErrorFlag = 1
-
-            hospitalCoverTotal += coverPrices.get(input.hospitalCoverLevel.toLowerCase());
-        }
-        else{
-            hospitalCoverTotal += coverPrices.get(input.hospitalCoverLevel.toLowerCase()) * (1 + (LHCPercentage * 0.01));
-        }
-
-        extrasCoverTotal += extrasPrices.get(input.extrasCoverLevel.toLowerCase())
+        extrasCoverTotal += extrasPrices.get(row.extras_cover.toLowerCase());
     }
 
     let upgradeFee = 0;
 
-    if (input.coverType.toLowerCase() == "family"){
+    if (row.cover_type.toLowerCase() == "family") {
         upgradeFee = familyUpgradeFee;
     }
 
     let monthlyTotal = hospitalCoverTotal + extrasCoverTotal + upgradeFee;
     let yearlyPreDiscount = monthlyTotal * 12;
-    let yearlyPostDiscount = (yearlyPreDiscount) * (1 - (yearlyDiscountPercentage * 0.01));
 
-    return { hospitalCoverTotal, extrasCoverTotal, upgradeFee, monthlyTotal, yearlyPreDiscount, yearlyPostDiscount};
+    let yearlyPostDiscount = null;
+    if (row.payment_frequency.toLowerCase() == "yearly") {
+        yearlyPostDiscount = yearlyPreDiscount * (1 - ((row.annual_discount ?? 0) * 0.01));
+    }
+
+    return {
+        hospitalCoverTotal,
+        extrasCoverTotal,
+        upgradeFee,
+        monthlyTotal,
+        yearlyPreDiscount,
+        yearlyPostDiscount,
+        applicants: applicantResults,
+        warnings,
+        lhcStatement,
+    };
 }
 
+module.exports = { calculateQuote };
