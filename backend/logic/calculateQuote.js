@@ -22,7 +22,7 @@ function calculateLHCPercentage(age, coverHistory) {
         return 0;
     }
 
-    if (coverHistory == "unsure") {
+    if (coverHistory == "not sure") {
         return null;
     }
 
